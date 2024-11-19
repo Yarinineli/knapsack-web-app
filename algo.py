@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 from data.data import df
+from streamlit_image_select import image_select
 
 def dynamic_programming_knapsack(items_df, weight_limit):
     """
@@ -85,9 +86,6 @@ def greedy_knapsack(items_df, weight_limit, strategy='efficiency'):
 st.logo("./images/HSBI_Logo_RGB_schwarz.png", size="large")
 st.title('Knapsack Problem')
 
-# Import required library
-from streamlit_image_select import image_select
-
 # Auswahl der Taschengröße with images
 st.header('1. Wähle deine Taschengröße')
 
@@ -120,39 +118,6 @@ weight_limits = {
     "Mittel (10 kg)": 10.0,
     "Groß (15 kg)": 15.0
 }
-
-
-# # Auswahl der Taschengröße
-# st.header('1. Wähle deine Taschengröße')
-# bag_size = st.radio(
-#     'Verfügbare Taschen:',
-#     ['Klein (5 kg)', 'Mittel (10 kg)', 'Groß (15 kg)']
-# )
-# # Klickbare Bilder für die Taschengröße
-# st.header('1. Wähle deine Taschengröße')
-# col1, col2, col3 = st.columns(3)
-
-# with col1:
-#     if st.button('Klein (5 kg)'):
-#         bag_size = 'Klein (5 kg)'
-#     st.image('./images/HSBI_Logo_RGB_schwarz.png', caption='Klein (5 kg)', use_container_width=True)
-
-# with col2:
-#     if st.button('Mittel (10 kg)'):
-#         bag_size = 'Mittel (10 kg)'
-#     st.image('./images/HSBI_Logo_RGB_schwarz.png', caption='Mittel (10 kg)', use_container_width=True)
-
-# with col3:
-#     if st.button('Groß (15 kg)'):
-#         bag_size = 'Groß (15 kg)'
-#     st.image('./images/HSBI_Logo_RGB_schwarz.png', caption='Groß (15 kg)', use_container_width=True)
-
-# Mapping der Taschengrößen zu Gewichtslimits
-# weight_limits = {
-#     'Klein (5 kg)': 5.0,
-#     'Mittel (10 kg)': 10.0,
-#     'Groß (15 kg)': 15.0
-# }
 
 # Strategie für Greedy Algorithmus
 st.header('2. Wähle deine Packstrategie für den Greedy Algorithmus')
