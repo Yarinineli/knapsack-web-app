@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 from data.data import df
 from streamlit_image_select import image_select
+from gurobipy import Model, GRB, quicksum
 
 def dynamic_programming_knapsack(items_df, weight_limit):
     """
@@ -73,7 +74,7 @@ def greedy_knapsack(items_df, weight_limit, strategy='efficiency'):
     total_weight = 0
     total_value = 0
     
-    for _, item in df_copy.iterrows():
+    for idx, item in df_copy.iterrows():
         if total_weight + item['Gewicht'] <= weight_limit:
             selected_items.append(item)
             total_weight += item['Gewicht']
@@ -81,6 +82,41 @@ def greedy_knapsack(items_df, weight_limit, strategy='efficiency'):
     
     return pd.DataFrame(selected_items), total_weight, total_value
 
+def gurobi_knapsack(items_df, weight_limit):
+    """
+    Löst das Knapsack-Problem mit dem Gurobi Solver.
+    """
+    # Gurobi-Modell erstellen
+    model = Model("Knapsack Problem")
+    model.setParam("OutputFlag", 0)  # Keine Ausgabe in der Konsole
+
+    # Variablen erstellen (0 oder 1 für jeden Gegenstand)
+    items = items_df.index
+    x = model.addVars(items, vtype=GRB.BINARY, name="x")
+
+    # Ziel: Gesamtnutzen maximieren
+    model.setObjective(quicksum(items_df.loc[i, 'Nutzen'] * x[i] for i in items), GRB.MAXIMIZE)
+
+    # Einschränkung: Gewichtslimit einhalten
+    model.addConstr(quicksum(items_df.loc[i, 'Gewicht'] * x[i] for i in items) <= weight_limit, "Gewichtslimit")
+
+    # Optimierung starten
+    model.optimize()
+
+    # Ergebnisse abrufen
+    selected_items = []
+    total_weight = 0
+    total_value = 0
+
+    if model.status == GRB.OPTIMAL:
+        for i in items:
+            if x[i].X > 0.5:  # Wenn Gegenstand ausgewählt wurde
+                selected_items.append(items_df.loc[i])
+                total_weight += items_df.loc[i, 'Gewicht']
+                total_value += items_df.loc[i, 'Nutzen']
+
+    selected_df = pd.DataFrame(selected_items)
+    return selected_df, total_weight, total_value
 
 # Streamlit Interface
 st.logo("./images/HSBI_Logo_RGB_schwarz.png", size="large")
@@ -93,20 +129,20 @@ st.header('1. Wähle deine Taschengröße')
 bag_image = image_select(
     label="Wähle eine Taschengröße",
     images=[
-        "./images/HSBI_Logo_RRR_schwarz.png",  # Local image file for 'Klein'
-        "./images/HSBI_Logo_GGG_schwarz.png",  # Local image file for 'Mittel'
-        "./images/HSBI_Logo_BBB_schwarz.png",  # Local image file for 'Groß'
+        "./images/HSBI_Logo_RGB_schwarz.png",  # Local image file for 'Klein'
+        "./images/HSBI_Logo_RGB_schwarz.png",  # Local image file for 'Mittel'
+        "./images/HSBI_Logo_RGB_schwarz.png",  # Local image file for 'Groß'
     ],
     captions=["Klein (5 kg)", "Mittel (10 kg)", "Groß (15 kg)"],  # Descriptive captions
     use_container_width=True
 )
 
 # Map selected image to corresponding bag size
-if bag_image == "./images/HSBI_Logo_RRR_schwarz.png":
+if bag_image == "./images/HSBI_Logo_RGB_schwarz.png":
     bag_size = "Klein (5 kg)"
-elif bag_image == "./images/HSBI_Logo_GGG_schwarz.png":
+elif bag_image == "./images/HSBI_Logo_RGB_schwarz.png":
     bag_size = "Mittel (10 kg)"
-elif bag_image == "./images/HSBI_Logo_BBB_schwarz.png":
+elif bag_image == "./images/HSBI_Logo_RGB_schwarz.png":
     bag_size = "Groß (15 kg)"
 
 # Display selected bag size
@@ -134,6 +170,7 @@ strategy_mapping = {
     'Minimales Gewicht': 'weight'
 }
 
+# --- Integration in Streamlit ---
 if st.button('Packliste erstellen'):
     # Greedy Algorithmus ausführen
     greedy_selected_items, greedy_total_weight, greedy_total_value = greedy_knapsack(
@@ -147,8 +184,15 @@ if st.button('Packliste erstellen'):
         df,
         weight_limits[bag_size]
     )
+
+    # Gurobi Solver ausführen
+    gurobi_selected_items, gurobi_total_weight, gurobi_total_value = gurobi_knapsack(
+        df,
+        weight_limits[bag_size]
+    )
+  
     
-    # Ergebnisse anzeigen
+# Ergebnisse anzeigen
     st.header('Deine optimierte Packliste:')
     
     # Metriken anzeigen
@@ -160,6 +204,21 @@ if st.button('Packliste erstellen'):
     col1.metric('Anzahl Gegenstände (DP)', len(dp_selected_items))
     col2.metric('Gesamtgewicht (DP)', f'{dp_total_weight:.2f} kg')
     col3.metric('Gesamtnutzen (DP)', f'{dp_total_value:.0f} Punkte')
+
+    col1.metric('Anzahl Gegenstände (Gurobi)', len(gurobi_selected_items))
+    col2.metric('Gesamtgewicht (Gurobi)', f'{gurobi_total_weight:.2f} kg')
+    col3.metric('Gesamtnutzen (Gurobi)', f'{gurobi_total_value:.0f} Punkte')
+    
+    # Ausgewählte Gegenstände anzeigen
+    st.subheader('Gurobi Solver')
+    st.dataframe(
+        gurobi_selected_items[['Gegenstand', 'Gewicht', 'Nutzen']]
+        .sort_values('Nutzen', ascending=False)
+        .style.format({
+            'Gewicht': '{:.2f}',
+            'Nutzen': '{:.0f}'
+        })
+    )
     
     # Ausgewählte Gegenstände anzeigen
     st.subheader('Greedy Algorithmus')
