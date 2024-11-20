@@ -1,0 +1,3 @@
+gurobi.lic
+*.pyc
+.env
