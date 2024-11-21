@@ -10,6 +10,10 @@ def dynamic_programming_knapsack(items_df, weight_limit):
     """
     Implementiert den Knapsack-Algorithmus mit dynamischer Programmierung
     """
+    
+    if items_df.empty:
+        return pd.DataFrame(), 0, 0  # Rückgabe eines leeren DataFrames und Nullwerten
+    
     n = len(items_df)
     weights = items_df['Gewicht'].values
     values = items_df['Nutzen'].values
@@ -49,6 +53,9 @@ def dynamic_programming_knapsack(items_df, weight_limit):
             selected_items.append(items_df.iloc[i-1])
             total_weight += items_df.iloc[i-1]['Gewicht']
             w -= weights[i-1]
+            
+    if not selected_items:  # Keine Items ausgewählt
+        return pd.DataFrame(), 0, 0
     
     selected_df = pd.DataFrame(selected_items)
     total_weight = selected_df['Gewicht'].sum()
@@ -60,6 +67,9 @@ def greedy_knapsack(items_df, weight_limit, strategy='efficiency'):
     """
     Implementiert den Greedy-Algorithmus für das Knapsack Problem
     """
+    if items_df.empty:
+        return pd.DataFrame(), 0, 0
+    
     df_copy = items_df.copy()
     df_copy['Effizienz'] = df_copy['Nutzen'] / df_copy['Gewicht']
     
@@ -74,11 +84,14 @@ def greedy_knapsack(items_df, weight_limit, strategy='efficiency'):
     total_weight = 0
     total_value = 0
     
-    for idx, item in df_copy.iterrows():
+    for _, item in df_copy.iterrows():
         if total_weight + item['Gewicht'] <= weight_limit:
             selected_items.append(item)
             total_weight += item['Gewicht']
             total_value += item['Nutzen']
+    
+    if not selected_items:  # Keine Items ausgewählt
+        return pd.DataFrame(), 0, 0
     
     return pd.DataFrame(selected_items), total_weight, total_value
 
@@ -92,13 +105,13 @@ def gurobi_knapsack(items_df, weight_limit):
 
     # Variablen erstellen (0 oder 1 für jeden Gegenstand)
     items = items_df.index
-    x = model.addVars(items, vtype=GRB.BINARY, name="x")
+    item_included = model.addVars(items, vtype=GRB.BINARY, name="item_included")
 
     # Ziel: Gesamtnutzen maximieren
-    model.setObjective(quicksum(items_df.loc[i, 'Nutzen'] * x[i] for i in items), GRB.MAXIMIZE)
+    model.setObjective(quicksum(items_df.loc[i, 'Nutzen'] * item_included[i] for i in items), GRB.MAXIMIZE)
 
     # Einschränkung: Gewichtslimit einhalten
-    model.addConstr(quicksum(items_df.loc[i, 'Gewicht'] * x[i] for i in items) <= weight_limit, "Gewichtslimit")
+    model.addConstr(quicksum(items_df.loc[i, 'Gewicht'] * item_included[i] for i in items) <= weight_limit, "Gewichtslimit")
 
     # Optimierung starten
     model.optimize()
@@ -110,7 +123,7 @@ def gurobi_knapsack(items_df, weight_limit):
 
     if model.status == GRB.OPTIMAL:
         for i in items:
-            if x[i].X > 0.5:  # Wenn Gegenstand ausgewählt wurde
+            if item_included[i].X > 0.5:  # Wenn Gegenstand ausgewählt wurde
                 selected_items.append(items_df.loc[i])
                 total_weight += items_df.loc[i, 'Gewicht']
                 total_value += items_df.loc[i, 'Nutzen']
