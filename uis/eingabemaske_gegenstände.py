@@ -8,6 +8,16 @@ def eingabemaske_gegenstände():
     if "gegenstände_df" not in st.session_state:
         st.session_state["gegenstände_df"] = pd.DataFrame(columns=["Gegenstand", "Gewicht (kg)", "Nutzen"])
 
+    # Initialize bag size and capacity if not already in session state
+    if "current_weight" not in st.session_state:
+        st.session_state["current_weight"] = 0.0
+
+    weight_limits = {
+        "Klein (5 kg)": 5.0,
+        "Mittel (10 kg)": 10.0,
+        "Groß (15 kg)": 15.0
+    }
+
     with st.container():
         tasche, gegenstände = st.columns([0.3, 0.7])
 
@@ -15,6 +25,7 @@ def eingabemaske_gegenstände():
             st.title("Gegenstände")
             if "bag_size" in st.session_state:
                 bag_size = st.session_state["bag_size"]
+                max_capacity = weight_limits[bag_size]
                 st.write(f"Du hast eine Taschengröße ausgewählt: {bag_size}")
 
                 # Display corresponding bag image
@@ -24,6 +35,13 @@ def eingabemaske_gegenstände():
                     "Groß (15 kg)": "./images/HSBI_Logo_BBB_schwarz.png",
                 }
                 st.image(bag_images.get(bag_size, ""), caption=bag_size, width=400)
+
+                # Display current capacity with a progress bar
+                st.write("### Aktuelle Kapazität des Rucksacks:")
+                current_capacity = st.session_state["current_weight"]
+                st.progress(current_capacity / max_capacity)
+                st.write(f"{current_capacity:.2f} kg von {max_capacity} kg genutzt")
+
             else:
                 st.warning("Es wurde keine Tasche ausgewählt. Bitte kehre zurück zur Taschenauswahl.")
 
@@ -42,8 +60,6 @@ def eingabemaske_gegenstände():
 
                 # Gewicht automatisch aus df holen basierend auf ausgewähltem Gegenstand
                 new_weight = df.loc[df["Gegenstand"] == new_item, "Gewicht"].values[0]
-
-              
 
                 # Nutzen bewerten
                 new_nutzen = st.selectbox(
@@ -64,6 +80,8 @@ def eingabemaske_gegenstände():
                     # Überprüfen, ob der Gegenstand bereits hinzugefügt wurde
                     if new_item in st.session_state["gegenstände_df"]["Gegenstand"].values:
                         st.warning(f"{new_item} wurde bereits hinzugefügt.")
+                    elif st.session_state["current_weight"] + new_weight > max_capacity:
+                        st.error(f"{new_item} kann nicht hinzugefügt werden. Der Rucksack würde überfüllt werden!")
                     else:
                         # Neuen Gegenstand hinzufügen
                         new_row = pd.DataFrame([{
@@ -75,7 +93,10 @@ def eingabemaske_gegenstände():
                             [st.session_state["gegenstände_df"], new_row],
                             ignore_index=True
                         )
+                        st.session_state["current_weight"] += new_weight
                         st.success(f"{new_item} wurde hinzugefügt!")
+                        # Update the progress bar
+                        st.progress(st.session_state["current_weight"] / max_capacity)
 
             # Display the DataFrame
             st.write("### Deine Auswahl:")
