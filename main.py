@@ -7,6 +7,13 @@ from uis.ladescreen import ladescreen
 from uis.ergebnismaske import ergebnismaske
 
 # Seiten-Definitionen
+st.logo("./images/HSBI_Logo_RGB_schwarz.png", size="large")
+st.set_page_config(
+    page_title="Knapsack Problem",
+    page_icon="🎒",
+    layout="wide",
+)
+
 pages = {
     "Start": lambda: start_page(),
     "Eingabemaske": lambda: eingabemaske(),
