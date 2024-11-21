@@ -62,18 +62,9 @@ def start_page():
     Probiert es aus und entdeckt, wie datenbasierte Entscheidungen zu besseren Ergebnissen führen!
     """
     st.write(Funktionsweise)
-        
-    
-    
-    
-    
-    
-    
-    
-    
     
     if st.button("Weiter"):
-        navigate("Eingabemaske")
+        navigate("Eingabemaske_Tasche")
         
         
 

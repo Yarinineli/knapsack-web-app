@@ -9,7 +9,7 @@ def uebersichtsmaske():
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Zurück"):
-            navigate("Eingabemaske")
+            navigate("Eingabemaske_Gegenstände")
     with col2:
         if st.button("Weiter"):
             navigate("Algorithmen-Auswahlmaske")
