@@ -37,10 +37,7 @@ def eingabemaske_gegenstände():
                 st.image(bag_images.get(bag_size, ""), caption=bag_size, width=400)
 
                 # Display current capacity with a progress bar
-                st.write("### Aktuelle Kapazität des Rucksacks:")
-                current_capacity = st.session_state["current_weight"]
-                st.progress(current_capacity / max_capacity)
-                st.write(f"{current_capacity:.2f} kg von {max_capacity} kg genutzt")
+                
 
             else:
                 st.warning("Es wurde keine Tasche ausgewählt. Bitte kehre zurück zur Taschenauswahl.")
@@ -95,8 +92,11 @@ def eingabemaske_gegenstände():
                         )
                         st.session_state["current_weight"] += new_weight
                         st.success(f"{new_item} wurde hinzugefügt!")
-                        # Update the progress bar
-                        st.progress(st.session_state["current_weight"] / max_capacity)
+                        st.write("### Aktuelle Kapazität des Rucksacks:")
+                        current_capacity = st.session_state["current_weight"]
+                        st.progress(current_capacity / max_capacity)
+                        st.write(f"{current_capacity:.2f} kg / {max_capacity} kg")  # Display current and max capacity
+                        
 
             # Display the DataFrame
             st.write("### Deine Auswahl:")
