@@ -22,7 +22,7 @@ def eingabemaske_gegenstände():
         tasche, gegenstände = st.columns([0.3, 0.7])
 
         with tasche:
-            st.title("Gegenstände")
+            st.title("Tasche")
             if "bag_size" in st.session_state:
                 bag_size = st.session_state["bag_size"]
                 max_capacity = weight_limits[bag_size]
