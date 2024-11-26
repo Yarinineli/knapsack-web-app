@@ -3,7 +3,7 @@ from navigate import navigate
 
 
 
-def start_page():
+def start_page(pages):
     st.title("Eine Einführung in das :orange[Knapsack-Problem]")
     
     st.header("Was ist das :orange[Knapsack-Problem]?")
@@ -64,7 +64,7 @@ def start_page():
     st.write(Funktionsweise)
     
     if st.button("Weiter"):
-        navigate("Eingabemaske_Tasche")
+        navigate("Eingabemaske_Tasche", pages)
         
         
 

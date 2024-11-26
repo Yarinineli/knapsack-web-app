@@ -3,7 +3,7 @@ from navigate import navigate
 from streamlit_image_select import image_select
 
 
-def eingabemaske_tasche():
+def eingabemaske_tasche(pages):
     st.title("Tasche")
     
     Rucksackauswahl = """
@@ -46,4 +46,4 @@ def eingabemaske_tasche():
             navigate("Start")
     with col2:
         if st.button("Weiter"):
-            navigate("Eingabemaske_Gegenstände")
+            navigate("Eingabemaske_Gegenstände", pages)

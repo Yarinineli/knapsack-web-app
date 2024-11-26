@@ -3,7 +3,7 @@ import pandas as pd
 from navigate import navigate
 from data.data import df  # Importiere deine Gegenstände aus dem DataFrame
 
-def eingabemaske_gegenstände():
+def eingabemaske_gegenstände(pages):
     # Initialize an empty DataFrame if not already in session state
     if "gegenstände_df" not in st.session_state:
         st.session_state["gegenstände_df"] = pd.DataFrame(columns=["Gegenstand", "Gewicht (kg)", "Nutzen"])
@@ -147,9 +147,19 @@ def eingabemaske_gegenstände():
                             st.write("Bitte bestätige deine Auswahl")
                             st.dataframe(st.session_state["gegenstände_df"], hide_index=True, use_container_width=True)
                             if st.button("Bestätigen"):
-                                navigate("Ergebnis")
+                                navigate("Algorithmen-Auswahlmaske", pages)
                             if st.button("Abbrechen"):
                                 st.rerun()
-                        dialog()    
-                            
-                            
+                        dialog()
+
+def get_tasche():
+    if "bag_size" in st.session_state:
+        return st.session_state["bag_size"]
+    else:
+        return None
+
+def get_gegenstände():
+    if "gegenstände_df" in st.session_state:
+        return st.session_state["gegenstände_df"]
+    else:
+        return pd.DataFrame(columns=["Gegenstand", "Gewicht (kg)", "Nutzen"])

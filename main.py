@@ -11,6 +11,7 @@ from uis.algorithmen_auswahlmaske import algorithmen_auswahlmaske
 from uis.ladescreen import ladescreen
 from uis.ergebnismaske import ergebnismaske
 from uis.eingabemaske_gegenstände import eingabemaske_gegenstände
+from navigate import navigate
 
 
 def dynamic_programming_knapsack(items_df, weight_limit):
@@ -148,13 +149,13 @@ st.set_page_config(
 )
 
 pages = {
-    "Start": lambda: start_page(),
-    "Eingabemaske_Tasche": lambda: eingabemaske_tasche(),
-    "Eingabemaske_Gegenstände": lambda: eingabemaske_gegenstände(),
-    "Übersichtsmaske": lambda: uebersichtsmaske(),
-    "Algorithmen-Auswahlmaske": lambda: algorithmen_auswahlmaske(),
-    "Ladescreen": lambda: ladescreen(),
-    "Ergebnismaske": lambda: ergebnismaske()
+    "Start": lambda: start_page(pages),
+    "Eingabemaske_Tasche": lambda: eingabemaske_tasche(pages),
+    "Eingabemaske_Gegenstände": lambda: eingabemaske_gegenstände(pages),
+    "Algorithmen-Auswahlmaske": lambda: algorithmen_auswahlmaske(pages),
+    "Übersichtsmaske": lambda: uebersichtsmaske(pages),
+    "Ladescreen": lambda: ladescreen(pages),
+    "Ergebnismaske": lambda: ergebnismaske(pages),
 }
 
 # Startpunkt der Anwendung
