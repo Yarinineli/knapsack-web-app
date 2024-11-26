@@ -34,11 +34,13 @@ def eingabemaske_gegenstände(pages):
                     "Mittel (10 kg)": "./images/mittel.png",
                     "Groß (15 kg)": "./images/gross.png",
                 }
-                st.image(bag_images.get(bag_size, ""), caption=bag_size, width=400)
+                st.image(bag_images.get(bag_size, ""), caption=bag_size, use_container_width=True)
                 
 
             else:
                 st.warning("Es wurde keine Tasche ausgewählt. Bitte kehre zurück zur Taschenauswahl.")
+                
+#TODO:Eventuell muss ich hier eine Auswahl bereitstellen in der der Benutzer erstmal auswählt welche gegenstände mitnehmen würde und anschließend die Nutzenbewertung folgt. Sonst ergeibt die App nciht so viuel sinn wenn ich die dinge nur nach gewicht auswähle
 
         with gegenstände:
             st.title("Hier kannst du die Gegenstände hinzufügen:")
@@ -151,15 +153,3 @@ def eingabemaske_gegenstände(pages):
                             if st.button("Abbrechen"):
                                 st.rerun()
                         dialog()
-
-def get_tasche():
-    if "bag_size" in st.session_state:
-        return st.session_state["bag_size"]
-    else:
-        return None
-
-def get_gegenstände():
-    if "gegenstände_df" in st.session_state:
-        return st.session_state["gegenstände_df"]
-    else:
-        return pd.DataFrame(columns=["Gegenstand", "Gewicht (kg)", "Nutzen"])
