@@ -9,7 +9,6 @@ from uis.algorithmen_auswahlmaske import algorithmen_auswahlmaske
 from uis.ladescreen import ladescreen
 from uis.ergebnismaske import ergebnismaske
 from uis.eingabemaske_gegenstände import eingabemaske_gegenstände
-from navigate import navigate
 
 
 def dynamic_programming_knapsack(items_df, weight_limit):
