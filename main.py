@@ -1,8 +1,6 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
-import plotly.express as px
-from data.data import df
 from gurobipy import Model, GRB, quicksum
 from uis.start_page import start_page
 from uis.eingabemaske_tasche import eingabemaske_tasche
