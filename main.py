@@ -21,7 +21,7 @@ def dynamic_programming_knapsack(items_df, weight_limit):
     
     n = len(items_df)
     weights = items_df['Gewicht'].values
-    values = items_df['Nutzen'].values#test
+    values = items_df['Nutzen'].values
     
     # Gewichte in Integer umwandeln für die DP-Matrix (multipliziere mit 10 für eine Dezimalstelle)
     weight_multiplier = 10

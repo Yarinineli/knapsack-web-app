@@ -142,20 +142,20 @@ st.header('1. Wähle deine Taschengröße')
 bag_image = image_select(
     label="Wähle eine Taschengröße",
     images=[
-        "./images/HSBI_Logo_RRR_schwarz.png",  # Local image file for 'Klein'
-        "./images/HSBI_Logo_GGG_schwarz.png",  # Local image file for 'Mittel'
-        "./images/HSBI_Logo_BBB_schwarz.png",  # Local image file for 'Groß'
+        "./images/klein.png",  # Local image file for 'Klein'
+        "./images/mittel.png",  # Local image file for 'Mittel'
+        "./images/gross.png",  # Local image file for 'Groß'
     ],
     captions=["Klein (5 kg)", "Mittel (10 kg)", "Groß (15 kg)"],  # Descriptive captions
     use_container_width=True
 )
 
 # Map selected image to corresponding bag size
-if bag_image == "./images/HSBI_Logo_RRR_schwarz.png":
+if bag_image == "./images/klein.png":
     bag_size = "Klein (5 kg)"
-elif bag_image == "./images/HSBI_Logo_GGG_schwarz.png":
+elif bag_image == "./images/mittel.png":
     bag_size = "Mittel (10 kg)"
-elif bag_image == "./images/HSBI_Logo_BBB_schwarz.png":
+elif bag_image == "./images/gross.png":
     bag_size = "Groß (15 kg)"
 
 # Display selected bag size

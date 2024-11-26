@@ -30,9 +30,9 @@ def eingabemaske_gegenstände(pages):
 
                 # Display corresponding bag image
                 bag_images = {
-                    "Klein (5 kg)": "./images/HSBI_Logo_RRR_schwarz.png",
-                    "Mittel (10 kg)": "./images/HSBI_Logo_GGG_schwarz.png",
-                    "Groß (15 kg)": "./images/HSBI_Logo_BBB_schwarz.png",
+                    "Klein (5 kg)": "./images/klein.png",
+                    "Mittel (10 kg)": "./images/mittel.png",
+                    "Groß (15 kg)": "./images/gross.png",
                 }
                 st.image(bag_images.get(bag_size, ""), caption=bag_size, width=400)
                 
