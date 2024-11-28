@@ -1,5 +1,6 @@
 {
     "python.analysis.extraPaths": [
         "./Test"
-    ]
+    ],
+    "python.analysis.autoImportCompletions": true
 }

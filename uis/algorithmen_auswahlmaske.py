@@ -180,7 +180,8 @@ def algorithmen_auswahlmaske(pages):
     
     greedy, dp, gurobi = st.columns(3)
     with greedy:
-        greedy = st.checkbox("Greedy-Algorithmus")
+        if st.checkbox("Greedy-Algorithmus"):
+            st.session_state["greedy"] = True
     with dp:
         dp = st.checkbox("Dynamische Programmierung")
     with gurobi:
@@ -189,7 +190,7 @@ def algorithmen_auswahlmaske(pages):
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Zurück"):
-            navigate("Übersichtsmaske")
+            navigate("Eingabemaske_Gegenstände", pages)
     with col2:
         if st.button("Weiter"):
-            navigate("Ladescreen")
+            navigate("Ergebnismaske", pages)
