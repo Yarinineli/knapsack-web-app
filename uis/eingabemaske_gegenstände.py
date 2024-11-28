@@ -12,11 +12,13 @@ def eingabemaske_gegenstände(pages):
     if "current_weight" not in st.session_state:
         st.session_state["current_weight"] = 0.0
 
-    weight_limits = {
-        "Klein (5 kg)": 5.0,
-        "Mittel (10 kg)": 10.0,
-        "Groß (15 kg)": 15.0
-    }
+    if "weight_limits" not in st.session_state:
+        st.session_state["weight_limits"] = {
+            "Klein (5 kg)": 5.0,
+            "Mittel (10 kg)": 10.0,
+            "Groß (15 kg)": 15.0
+        }
+    weight_limits = st.session_state["weight_limits"]
 
     with st.container():
         tasche, gegenstände = st.columns([0.2, 0.8])
@@ -35,104 +37,60 @@ def eingabemaske_gegenstände(pages):
                     "Groß (15 kg)": "./images/gross.png",
                 }
                 st.image(bag_images.get(bag_size, ""), caption=bag_size, use_container_width=True)
-                
-
             else:
                 st.warning("Es wurde keine Tasche ausgewählt. Bitte kehre zurück zur Taschenauswahl.")
-                
-#TODO:Eventuell muss ich hier eine Auswahl bereitstellen in der der Benutzer erstmal auswählt welche gegenstände mitnehmen würde und anschließend die Nutzenbewertung folgt. Sonst ergeibt die App nciht so viuel sinn wenn ich die dinge nur nach gewicht auswähle
 
         with gegenstände:
             st.title("Hier kannst du die Gegenstände hinzufügen:")
 
-            # Form to add a new item
-            hinzufügen, entfernen = st.columns([0.5, 0.5])
-            
-            with hinzufügen:
-            
-                with st.form(key="add_item_form"):
-                    # Dropdown für Gegenstandsauswahl
-                    new_item_with_weight = st.selectbox(
-                        "Wähle einen Gegenstand:",
-                        df.apply(lambda row: f"{row['Gegenstand']} ({row['Gewicht']} kg)", axis=1).unique())
+            # Prepare items for selection
+            items_selection = df.copy()
+            items_selection['Auswählen'] = False
+            items_selection['Nutzen'] = "praktisch zu haben"  # Default utility rating (label)
 
-                    # Extract item name from the selected option
-                    new_item = new_item_with_weight.split(" (")[0]
+            # Define utility labels and mapping
+            utility_labels = {
+                1: "eher nice to have",
+                2: "kann hilfreich sein",
+                3: "praktisch zu haben",
+                4: "wichtig",
+                5: "brauche ich unbedingt"
+            }
 
-                    # Gewicht automatisch aus df holen basierend auf ausgewähltem Gegenstand
-                    new_weight = df.loc[df["Gegenstand"] == new_item, "Gewicht"].values[0]
+            label_to_value = {v: k for k, v in utility_labels.items()}  # Reverse mapping
 
-                    # Nutzen bewerten
-                    new_nutzen = st.selectbox(
-                        "Bewerte den Nutzen:",
-                        options=[1, 2, 3, 4, 5],
-                        format_func=lambda x: {
-                            1: "eher nice to have",
-                            2: "kann hilfreich sein",
-                            3: "praktisch zu haben",
-                            4: "wichtig",
-                            5: "brauche ich unbedingt",
-                        }[x],
+            # Create an editable dataframe for item selection
+            edited_items = st.data_editor(
+                items_selection,
+                column_config={
+                    "Auswählen": st.column_config.CheckboxColumn(default=False),
+                    "Nutzen": st.column_config.SelectboxColumn(
+                        options=list(utility_labels.values()),  # Display only labels
+                        default="praktisch zu haben"
                     )
+                },
+                disabled=['Gegenstand', 'Gewicht'],
+                hide_index=True
+            )
 
-                    submitted = st.form_submit_button("Hinzufügen")
+            # Map selected labels back to numeric values
+            edited_items['Nutzen'] = edited_items['Nutzen'].map(label_to_value)
 
-                    if submitted:
-                        # Überprüfen, ob der Gegenstand bereits hinzugefügt wurde
-                        if new_item in st.session_state["gegenstände_df"]["Gegenstand"].values:
-                            st.warning(f"{new_item} wurde bereits hinzugefügt.")
-                        elif st.session_state["current_weight"] + new_weight > max_capacity:
-                            st.error(f"{new_item} kann nicht hinzugefügt werden. Der Rucksack würde überfüllt werden!")
-                        else:
-                            # Neuen Gegenstand hinzufügen
-                            new_row = pd.DataFrame([{
-                                "Gegenstand": new_item,
-                                "Gewicht (kg)": new_weight,
-                                "Nutzen": new_nutzen,
-                            }])
-                            st.session_state["gegenstände_df"] = pd.concat(
-                                [st.session_state["gegenstände_df"], new_row],
-                                ignore_index=True
-                            )
-                            st.session_state["current_weight"] += new_weight
-                            st.success(f"{new_item} wurde hinzugefügt!")
-                            st.write("### Aktuelle Kapazität des Rucksacks:")
-                             # Display current and max capacity
-            with entfernen:
-                if st.session_state["gegenstände_df"].empty:
-                    st.write(" ")
-                else:
-                    # Form to delete an item
-                    with st.form(key="delete_item_form"):
-                        delete_item = st.selectbox(
-                            "Wähle einen Gegenstand zum Entfernen:",
-                            st.session_state["gegenstände_df"]["Gegenstand"].unique()
-                        )
-                        delete_submitted = st.form_submit_button("Entfernen")
+            # Identify selected items
+            selected_items = edited_items[edited_items['Auswählen']]
 
-                        if delete_submitted:
-                            # Gegenstand entfernen
-                            item_row = st.session_state["gegenstände_df"].loc[
-                                st.session_state["gegenstände_df"]["Gegenstand"] == delete_item
-                            ]
-                            if not item_row.empty:
-                                item_weight = item_row["Gewicht (kg)"].values[0]
-                                st.session_state["gegenstände_df"] = st.session_state["gegenstände_df"][
-                                    st.session_state["gegenstände_df"]["Gegenstand"] != delete_item
-                                ]
-                                st.session_state["current_weight"] -= item_weight
-                                st.success(f"{delete_item} wurde entfernt!")
-                            else:
-                                st.error(f"{delete_item} konnte nicht gefunden werden.")
-                        
-
-            # Display the DataFrame
+            # Display current selection and capacity
             st.write("### Deine Auswahl:")
-            current_capacity = st.session_state["current_weight"]
-            st.progress(current_capacity / max_capacity)
-            st.write(f"{current_capacity:.2f} kg / {max_capacity} kg")  # Display current and max capacity
-            st.dataframe(st.session_state["gegenstände_df"], hide_index=True, use_container_width=True)
-                
+
+            # Display selected items
+            if not selected_items.empty:
+                # Prepare selected items DataFrame
+                selected_df = selected_items[['Gegenstand', 'Gewicht', 'Nutzen']].copy()
+                selected_df.columns = ['Gegenstand', 'Gewicht (kg)', 'Nutzen']
+
+                st.dataframe(selected_df, hide_index=True, use_container_width=True)
+                current_capacity = st.session_state["current_weight"] + selected_items['Gewicht'].sum()
+                st.write(f"### Aktuelles Gewicht: {current_capacity:.2f} kg")
 
             # Navigation Buttons
             col1, col2 = st.columns(2)
@@ -141,15 +99,18 @@ def eingabemaske_gegenstände(pages):
                     navigate("Eingabemaske_Tasche")
             with col2:
                 if st.button("Weiter"):
-                    if st.session_state["gegenstände_df"].empty:
-                        st.warning("Bitte füge mindestens einen Gegenstand hinzu, bevor du fortfährst.")
-                    else:
-                        @st.dialog("Cast your vote", width="large")
-                        def dialog():
-                            st.write("Bitte bestätige deine Auswahl")
-                            st.dataframe(st.session_state["gegenstände_df"], hide_index=True, use_container_width=True)
-                            if st.button("Bestätigen"):
-                                navigate("Algorithmen-Auswahlmaske", pages)
-                            if st.button("Abbrechen"):
-                                st.rerun()
-                        dialog()
+                    if selected_items.empty:
+                        st.warning("Bitte wähle mindestens einen Gegenstand aus, bevor du fortfährst.")
+            
+                    @st.dialog("Bitte bestätige deine Auswahl", width="large")
+                    def dialog():
+                        if current_capacity > max_capacity:
+                            st.write(f"Du willst also in deine {max_capacity} kg Tasche {current_capacity:.2f} kg packen?! 🤣🤣🤣")
+                        st.dataframe(selected_df, hide_index=True, use_container_width=True)
+                        if st.button("Bestätigen"):
+                            # Store selected items in session state
+                            st.session_state["gegenstände_df"] = selected_df
+                            navigate("Algorithmen-Auswahlmaske", pages)
+                        if st.button("Abbrechen"):
+                            st.rerun()
+                    dialog()

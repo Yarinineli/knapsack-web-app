@@ -2,16 +2,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python:Streamlit",
-            "type": "debugpy",
+            "name": "Python: Streamlit",
+            "type": "python",
             "request": "launch",
             "module": "streamlit",
             "args": [
                 "run",
-                "${file}",
+                "main.py",  // Adjust to the path of your main.py file relative to your workspace
                 "--server.port",
                 "2000"
-            ]
+            ],
+            "console": "integratedTerminal", // Streamlit works better in the integrated terminal
+            "justMyCode": false // Allows debugging of all imported modules
         }
     ]
 }

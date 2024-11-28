@@ -12,7 +12,9 @@ def dynamic_programming_knapsack(items_df, weight_limit):
         return pd.DataFrame(), 0, 0  # Rückgabe eines leeren DataFrames und Nullwerten
     
     n = len(items_df)
-    weights = items_df['Gewicht'].values
+    # Update column name here
+    weights = items_df['Gewicht (kg)'].values
+    # Update column name here
     values = items_df['Nutzen'].values
     
     # Gewichte in Integer umwandeln für die DP-Matrix (multipliziere mit 10 für eine Dezimalstelle)
@@ -43,19 +45,18 @@ def dynamic_programming_knapsack(items_df, weight_limit):
     
     # Ausgewählte Items zurückverfolgen
     selected_items = []
-    w = weight_limit_scaled
     total_weight = 0
+    w = weight_limit_scaled
     for i in range(n, 0, -1):
-        if keep[i][w] and total_weight + items_df.iloc[i-1]['Gewicht'] <= weight_limit:
+        if keep[i][w] and total_weight + items_df.iloc[i-1]['Gewicht (kg)'] <= weight_limit:
             selected_items.append(items_df.iloc[i-1])
-            total_weight += items_df.iloc[i-1]['Gewicht']
+            total_weight += items_df.iloc[i-1]['Gewicht (kg)']
             w -= weights[i-1]
             
     if not selected_items:  # Keine Items ausgewählt
         return pd.DataFrame(), 0, 0
     
     selected_df = pd.DataFrame(selected_items)
-    total_weight = selected_df['Gewicht'].sum()
     total_value = selected_df['Nutzen'].sum()
     
     return selected_df, total_weight, total_value
@@ -67,24 +68,27 @@ def greedy_knapsack(items_df, weight_limit, strategy='efficiency'):
     if items_df.empty:
         return pd.DataFrame(), 0, 0
     
+    # Ensure the 'Gewicht (kg)' column is numeric
+    items_df['Gewicht (kg)'] = pd.to_numeric(items_df['Gewicht (kg)'], errors='coerce')
+    
     df_copy = items_df.copy()
-    df_copy['Effizienz'] = df_copy['Nutzen'] / df_copy['Gewicht']
+    df_copy['Effizienz'] = df_copy['Nutzen'] / df_copy['Gewicht (kg)']
     
     if strategy == 'efficiency':
         df_copy = df_copy.sort_values('Effizienz', ascending=False)
     elif strategy == 'value':
         df_copy = df_copy.sort_values('Nutzen', ascending=False)
     elif strategy == 'weight':
-        df_copy = df_copy.sort_values('Gewicht')
+        df_copy = df_copy.sort_values('Gewicht (kg)')
     
     selected_items = []
     total_weight = 0
     total_value = 0
     
     for _, item in df_copy.iterrows():
-        if total_weight + item['Gewicht'] <= weight_limit:
+        if total_weight + item['Gewicht (kg)'] <= weight_limit:
             selected_items.append(item)
-            total_weight += item['Gewicht']
+            total_weight += item['Gewicht (kg)']
             total_value += item['Nutzen']
     
     if not selected_items:  # Keine Items ausgewählt
@@ -108,7 +112,7 @@ def gurobi_knapsack(items_df, weight_limit):
     model.setObjective(quicksum(items_df.loc[i, 'Nutzen'] * item_included[i] for i in items), GRB.MAXIMIZE)
 
     # Einschränkung: Gewichtslimit einhalten
-    model.addConstr(quicksum(items_df.loc[i, 'Gewicht'] * item_included[i] for i in items) <= weight_limit, "Gewichtslimit")
+    model.addConstr(quicksum(items_df.loc[i, 'Gewicht (kg)'] * item_included[i] for i in items) <= weight_limit, "Gewichtslimit")
 
     # Optimierung starten
     model.optimize()
@@ -122,7 +126,7 @@ def gurobi_knapsack(items_df, weight_limit):
         for i in items:
             if item_included[i].X > 0.5:  # Wenn Gegenstand ausgewählt wurde
                 selected_items.append(items_df.loc[i])
-                total_weight += items_df.loc[i, 'Gewicht']
+                total_weight += items_df.loc[i, 'Gewicht (kg)']
                 total_value += items_df.loc[i, 'Nutzen']
 
     selected_df = pd.DataFrame(selected_items)
