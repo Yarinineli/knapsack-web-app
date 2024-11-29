@@ -37,121 +37,70 @@ def ergebnismaske(pages):
         weight_limit
     )
     
-    # Metriken anzeigen
-    st.header('Algorithmus-Metriken')
+    # Display results in three columns
     col1, col2, col3 = st.columns(3)
     
-    # Greedy Metrics
-    col1.metric('Anzahl Gegenstände (Greedy)', len(greedy_selected_items))
-    col2.metric('Gesamtgewicht (Greedy)', f'{greedy_total_weight:.2f} kg')
-    col3.metric('Gesamtnutzen (Greedy)', f'{greedy_total_value:.0f} Punkte')
+    with col1:
+        st.subheader("Greedy Algorithmus")
+        st.metric('Anzahl Gegenstände', len(greedy_selected_items))
+        st.metric('Gesamtgewicht', f'{greedy_total_weight:.2f} kg')
+        st.metric('Gesamtnutzen', f'{greedy_total_value:.0f} Punkte')
+        
+        if not greedy_selected_items.empty:
+            st.dataframe(
+                greedy_selected_items[['Gegenstand', 'Gewicht (kg)', 'Nutzen']]
+                .sort_values('Nutzen', ascending=False)
+            )
+            fig_greedy = px.pie(
+                greedy_selected_items,
+                values='Gewicht (kg)',
+                names='Gegenstand',
+                title='Gewichtsverteilung (Greedy)',
+                hole=0.3
+            )
+            st.plotly_chart(fig_greedy, use_container_width=True)
     
-    # Dynamic Programming Metrics
-    col1.metric('Anzahl Gegenstände (DP)', len(dp_selected_items))
-    col2.metric('Gesamtgewicht (DP)', f'{dp_total_weight:.2f} kg')
-    col3.metric('Gesamtnutzen (DP)', f'{dp_total_value:.0f} Punkte')
+    with col2:
+        st.subheader("Dynamische Programmierung")
+        st.metric('Anzahl Gegenstände', len(dp_selected_items))
+        st.metric('Gesamtgewicht', f'{dp_total_weight:.2f} kg')
+        st.metric('Gesamtnutzen', f'{dp_total_value:.0f} Punkte')
+        
+        if not dp_selected_items.empty:
+            st.dataframe(
+                dp_selected_items[['Gegenstand', 'Gewicht (kg)', 'Nutzen']]
+                .sort_values('Nutzen', ascending=False)
+            )
+            fig_dp = px.pie(
+                dp_selected_items,
+                values='Gewicht (kg)',
+                names='Gegenstand',
+                title='Gewichtsverteilung (DP)',
+                hole=0.3
+            )
+            st.plotly_chart(fig_dp, use_container_width=True)
     
-    # Gurobi Metrics
-    col1.metric('Anzahl Gegenstände (Gurobi)', len(gurobi_selected_items))
-    col2.metric('Gesamtgewicht (Gurobi)', f'{gurobi_total_weight:.2f} kg')
-    col3.metric('Gesamtnutzen (Gurobi)', f'{gurobi_total_value:.0f} Punkte')
-    
-    # Selected Items Details
-    st.header('Ausgewählte Gegenstände')
-    
-    # Gurobi Solver Results
-    st.subheader('Gurobi Solver')
-    if not gurobi_selected_items.empty:
-        st.dataframe(
-            gurobi_selected_items[['Gegenstand', 'Gewicht (kg)', 'Nutzen']]
-            .sort_values('Nutzen', ascending=False)
-            .style.format({
-                'Gewicht (kg)': '{:.2f}',
-                'Nutzen': '{:.0f}'
-            })
-        )
-    
-    # Greedy Algorithm Results
-    st.subheader('Greedy Algorithmus')
-    if not greedy_selected_items.empty:
-        greedy_selected_items['Effizienz'] = greedy_selected_items['Nutzen'] / greedy_selected_items['Gewicht (kg)']
-        st.dataframe(
-            greedy_selected_items[['Gegenstand', 'Gewicht (kg)', 'Nutzen', 'Effizienz']]
-            .sort_values('Nutzen', ascending=False)
-            .style.format({
-                'Gewicht (kg)': '{:.2f}',
-                'Effizienz': '{:.2f}',
-                'Nutzen': '{:.0f}'
-            })
-        )
-    
-    # Dynamic Programming Results
-    st.subheader('Dynamische Programmierung')
-    if not dp_selected_items.empty:
-        st.dataframe(
-            dp_selected_items[['Gegenstand', 'Gewicht (kg)', 'Nutzen']]
-            .sort_values('Nutzen', ascending=False)
-            .style.format({
-                'Gewicht (kg)': '{:.2f}',
-                'Nutzen': '{:.0f}'
-            })
-        )
-    
-    # Gewichtsverteilung
-    st.header('Gewichtsverteilung')
-    
-    # Greedy Weight Distribution
-    if not greedy_selected_items.empty:
-        fig_greedy = px.pie(
-            greedy_selected_items,
-            values='Gewicht (kg)',
-            names='Gegenstand',
-            title='Gewichtsverteilung der ausgewählten Gegenstände (Greedy)',
-            hole=0.3
-        )
-        fig_greedy.update_traces(textposition='inside', textinfo='percent+label')
-        st.plotly_chart(fig_greedy)
-    
-    # Dynamic Programming Weight Distribution
-    if not dp_selected_items.empty:
-        fig_dp = px.pie(
-            dp_selected_items,
-            values='Gewicht (kg)',
-            names='Gegenstand',
-            title='Gewichtsverteilung der ausgewählten Gegenstände (DP)',
-            hole=0.3
-        )
-        fig_dp.update_traces(textposition='inside', textinfo='percent+label')
-        st.plotly_chart(fig_dp)
-    
-    # Nutzenverteilung
-    st.header('Nutzenverteilung')
-    
-    # Greedy Value Distribution
-    if not greedy_selected_items.empty:
-        fig_value_greedy = px.pie(
-            greedy_selected_items,
-            values='Nutzen',
-            names='Gegenstand',
-            title='Nutzenverteilung der ausgewählten Gegenstände (Greedy)',
-            hole=0.3
-        )
-        fig_value_greedy.update_traces(textposition='inside', textinfo='percent+label')
-        st.plotly_chart(fig_value_greedy)
-    
-    # Dynamic Programming Value Distribution
-    if not dp_selected_items.empty:
-        fig_value_dp = px.pie(
-            dp_selected_items,
-            values='Nutzen',
-            names='Gegenstand',
-            title='Nutzenverteilung der ausgewählten Gegenstände (DP)',
-            hole=0.3
-        )
-        fig_value_dp.update_traces(textposition='inside', textinfo='percent+label')
-        st.plotly_chart(fig_value_dp)
-    
+    with col3:
+        st.subheader("Gurobi Solver")
+        st.metric('Anzahl Gegenstände', len(gurobi_selected_items))
+        st.metric('Gesamtgewicht', f'{gurobi_total_weight:.2f} kg')
+        st.metric('Gesamtnutzen', f'{gurobi_total_value:.0f} Punkte')
+        
+        if not gurobi_selected_items.empty:
+            st.dataframe(
+                gurobi_selected_items[['Gegenstand', 'Gewicht (kg)', 'Nutzen']]
+                .sort_values('Nutzen', ascending=False)
+            )
+            fig_gurobi = px.pie(
+                gurobi_selected_items,
+                values='Gewicht (kg)',
+                names='Gegenstand',
+                title='Gewichtsverteilung (Gurobi)',
+                hole=0.3
+            )
+            st.plotly_chart(fig_gurobi, use_container_width=True)
+
     # Back to start button
     if st.button("Zurück zur Startseite"):
         clear_inputs()
-        navigate("Start")
+        navigate("Start", pages)

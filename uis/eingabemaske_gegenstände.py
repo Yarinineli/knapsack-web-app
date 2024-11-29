@@ -70,7 +70,8 @@ def eingabemaske_gegenstände(pages):
                     )
                 },
                 disabled=['Gegenstand', 'Gewicht'],
-                hide_index=True
+                hide_index=True,
+                height=900
             )
 
             # Map selected labels back to numeric values
