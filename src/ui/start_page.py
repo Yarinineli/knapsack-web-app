@@ -1,5 +1,5 @@
 import streamlit as st 
-from navigate import navigate
+from src.core import navigate
 
 
 

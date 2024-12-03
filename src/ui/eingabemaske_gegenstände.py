@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
-from navigate import navigate
-from data.data import df
+from src.core import navigate
+from src.data import df
 
 def eingabemaske_gegenstände(pages):
     # Existing initialization code...
@@ -30,9 +30,9 @@ def eingabemaske_gegenstände(pages):
                 st.write(f"Du hast eine Taschengröße ausgewählt: {bag_size}")
 
                 bag_images = {
-                    "Klein (5 kg)": "./images/klein.png",
-                    "Mittel (10 kg)": "./images/mittel.png",
-                    "Groß (15 kg)": "./images/gross.png",
+                    "Klein (5 kg)": "static/images/klein.png",
+                    "Mittel (10 kg)": "static/images/mittel.png",
+                    "Groß (15 kg)": "static/images/gross.png",
                 }
                 st.image(bag_images.get(bag_size, ""), caption=bag_size, use_container_width=True)
                 
@@ -88,6 +88,8 @@ def eingabemaske_gegenstände(pages):
             selected_items = edited_items[edited_items['Auswählen']]
 
             st.write("### Deine Auswahl:")
+
+            current_capacity = st.session_state["current_weight"] + selected_items['Gewicht'].sum()
 
             if not selected_items.empty:
                 selected_df = selected_items[['Gegenstand', 'Gewicht', 'Nutzen']].copy()

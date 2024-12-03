@@ -1,5 +1,5 @@
 import streamlit as st
-from navigate import navigate
+from src.core import navigate
 import pandas as pd
 from streamlit_extras import row
 import numpy as np
@@ -12,9 +12,9 @@ def algorithmen_auswahlmaske(pages):
             bag_size = st.session_state["bag_size"]
             st.write(f"Du hast eine Taschengröße ausgewählt: {bag_size}")
             bag_images = {
-                    "Klein (5 kg)": "./images/klein.png",
-                    "Mittel (10 kg)": "./images/mittel.png",
-                    "Groß (15 kg)": "./images/gross.png",
+                    "Klein (5 kg)": "static/images/klein.png",
+                    "Mittel (10 kg)": "static/images/mittel.png",
+                    "Groß (15 kg)": "static/images/gross.png",
                 }
             st.image(bag_images.get(bag_size, ""), caption=bag_size, use_container_width=True)
         
@@ -25,7 +25,7 @@ def algorithmen_auswahlmaske(pages):
     with gegenstände:
         gegenstände_data = st.session_state.get("gegenstände_df", pd.DataFrame(columns=["Gegenstand", "Gewicht (kg)", "Nutzen"]))
         st.write("Gegenstände:")
-        st.dataframe(gegenstände_data, hide_index=True)
+        st.dataframe(gegenstände_data, hide_index=True, use_container_width=True)
 
     
     

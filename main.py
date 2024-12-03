@@ -1,13 +1,13 @@
 import streamlit as st
-from uis.start_page import start_page
-from uis.eingabemaske_tasche import eingabemaske_tasche
-from uis.algorithmen_auswahlmaske import algorithmen_auswahlmaske
-from uis.ergebnismaske import ergebnismaske
-from uis.eingabemaske_gegenstände import eingabemaske_gegenstände
+from src.ui.start_page import start_page
+from src.ui.eingabemaske_tasche import eingabemaske_tasche
+from src.ui.algorithmen_auswahlmaske import algorithmen_auswahlmaske
+from src.ui.ergebnismaske import ergebnismaske
+from src.ui.eingabemaske_gegenstände import eingabemaske_gegenstände
 
 
 # Seiten-Definitionen
-st.logo("./images/HSBI_Logo_RGB_schwarz.png", size="large")
+st.logo("static/images/HSBI_Logo_RGB_schwarz.png", size="large")
 st.set_page_config(
     page_title="Knapsack Problem",
     page_icon="🎒",

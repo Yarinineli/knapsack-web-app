@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from navigate import navigate, clear_inputs
-from algorithms import greedy_knapsack, dynamic_programming_knapsack, gurobi_knapsack
+from src.core import navigate, clear_inputs
+from src.core import greedy_knapsack, dynamic_programming_knapsack, gurobi_knapsack
 
 def ergebnismaske(pages):
     st.title("Ergebnismaske")

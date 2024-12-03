@@ -1,5 +1,5 @@
 import streamlit as st
-from navigate import navigate
+from src.core import navigate
 from streamlit_image_select import image_select
 
 
@@ -21,20 +21,20 @@ def eingabemaske_tasche(pages):
     bag_image = image_select(
         label="Wähle eine Taschengröße",
         images=[
-            "./images/klein.png",  # Local image file for 'Klein'
-            "./images/mittel.png",  # Local image file for 'Mittel'
-            "./images/gross.png",  # Local image file for 'Groß'
+            "static/images/klein.png",  # Local image file for 'Klein'
+            "static/images/mittel.png",  # Local image file for 'Mittel'
+            "static/images/gross.png",  # Local image file for 'Groß'
         ],
         captions=["Klein (5 kg)", "Mittel (10 kg)", "Groß (15 kg)"],  # Descriptive captions
         use_container_width=True
     )
 
     # Map selected image to corresponding bag size
-    if bag_image == "./images/klein.png":
+    if bag_image == "static/images/klein.png":
         st.session_state["bag_size"] = "Klein (5 kg)"
-    elif bag_image == "./images/mittel.png":
+    elif bag_image == "static/images/mittel.png":
         st.session_state["bag_size"] = "Mittel (10 kg)"
-    elif bag_image == "./images/gross.png":
+    elif bag_image == "static/images/gross.png":
         st.session_state["bag_size"] = "Groß (15 kg)"
 
     # Display selected bag size
