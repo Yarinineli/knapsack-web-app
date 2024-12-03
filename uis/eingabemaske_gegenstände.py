@@ -45,8 +45,8 @@ def eingabemaske_gegenstände(pages):
 
             # Prepare items for selection
             items_selection = df.copy()
-            items_selection['Auswählen'] = False
-            items_selection['Nutzen'] = "praktisch zu haben"  # Default utility rating (label)
+            # items_selection['Auswählen'] = False
+            # items_selection['Nutzen'] = "praktisch zu haben"  # Default utility rating (label)
 
             # Define utility labels and mapping
             utility_labels = {
@@ -58,6 +58,12 @@ def eingabemaske_gegenstände(pages):
             }
 
             label_to_value = {v: k for k, v in utility_labels.items()}  # Reverse mapping
+
+            # Uncomment the following lines to test the variant where all items are selected and Nutzen is assigned from 1 to 5
+            items_selection['Auswählen'] = True
+            for i in range(len(items_selection)):
+                items_selection.at[i, 'Nutzen'] = utility_labels[(i % 5) + 1]
+
 
             # Create an editable dataframe for item selection
             edited_items = st.data_editor(
@@ -71,7 +77,7 @@ def eingabemaske_gegenstände(pages):
                 },
                 disabled=['Gegenstand', 'Gewicht'],
                 hide_index=True,
-                height=900
+                height=0
             )
 
             # Map selected labels back to numeric values
