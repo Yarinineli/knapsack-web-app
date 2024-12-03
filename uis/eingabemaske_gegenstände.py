@@ -1,14 +1,13 @@
 import streamlit as st
 import pandas as pd
 from navigate import navigate
-from data.data import df  # Importiere deine Gegenstände aus dem DataFrame
+from data.data import df
 
 def eingabemaske_gegenstände(pages):
-    # Initialize an empty DataFrame if not already in session state
+    # Existing initialization code...
     if "gegenstände_df" not in st.session_state:
         st.session_state["gegenstände_df"] = pd.DataFrame(columns=["Gegenstand", "Gewicht (kg)", "Nutzen"])
 
-    # Initialize bag size and capacity if not already in session state
     if "current_weight" not in st.session_state:
         st.session_state["current_weight"] = 0.0
 
@@ -30,23 +29,24 @@ def eingabemaske_gegenstände(pages):
                 max_capacity = weight_limits[bag_size]
                 st.write(f"Du hast eine Taschengröße ausgewählt: {bag_size}")
 
-                # Display corresponding bag image
                 bag_images = {
                     "Klein (5 kg)": "./images/klein.png",
                     "Mittel (10 kg)": "./images/mittel.png",
                     "Groß (15 kg)": "./images/gross.png",
                 }
                 st.image(bag_images.get(bag_size, ""), caption=bag_size, use_container_width=True)
+                
+                # Add test mode button below the bag image
+                test_mode = st.toggle("Test-Modus", value=False, help="Alle Gegenstände automatisch auswählen")
             else:
                 st.warning("Es wurde keine Tasche ausgewählt. Bitte kehre zurück zur Taschenauswahl.")
+                test_mode = False
 
         with gegenstände:
             st.title("Hier kannst du die Gegenstände hinzufügen:")
 
             # Prepare items for selection
             items_selection = df.copy()
-            # items_selection['Auswählen'] = False
-            # items_selection['Nutzen'] = "praktisch zu haben"  # Default utility rating (label)
 
             # Define utility labels and mapping
             utility_labels = {
@@ -57,21 +57,24 @@ def eingabemaske_gegenstände(pages):
                 5: "brauche ich unbedingt"
             }
 
-            label_to_value = {v: k for k, v in utility_labels.items()}  # Reverse mapping
+            label_to_value = {v: k for k, v in utility_labels.items()}
 
-            # Uncomment the following lines to test the variant where all items are selected and Nutzen is assigned from 1 to 5
-            items_selection['Auswählen'] = True
-            for i in range(len(items_selection)):
-                items_selection.at[i, 'Nutzen'] = utility_labels[(i % 5) + 1]
+            # Apply test mode if activated
+            if test_mode:
+                items_selection['Auswählen'] = True
+                for i in range(len(items_selection)):
+                    items_selection.at[i, 'Nutzen'] = utility_labels[(i % 5) + 1]
+            else:
+                items_selection['Auswählen'] = False
+                items_selection['Nutzen'] = utility_labels[3]  # Default: "praktisch zu haben"
 
-
-            # Create an editable dataframe for item selection
+            # Create an editable dataframe
             edited_items = st.data_editor(
                 items_selection,
                 column_config={
                     "Auswählen": st.column_config.CheckboxColumn(default=False),
                     "Nutzen": st.column_config.SelectboxColumn(
-                        options=list(utility_labels.values()),  # Display only labels
+                        options=list(utility_labels.values()),
                         default="praktisch zu haben"
                     )
                 },
@@ -80,18 +83,13 @@ def eingabemaske_gegenstände(pages):
                 height=0
             )
 
-            # Map selected labels back to numeric values
+            # Rest of your code remains the same...
             edited_items['Nutzen'] = edited_items['Nutzen'].map(label_to_value)
-
-            # Identify selected items
             selected_items = edited_items[edited_items['Auswählen']]
 
-            # Display current selection and capacity
             st.write("### Deine Auswahl:")
 
-            # Display selected items
             if not selected_items.empty:
-                # Prepare selected items DataFrame
                 selected_df = selected_items[['Gegenstand', 'Gewicht', 'Nutzen']].copy()
                 selected_df.columns = ['Gegenstand', 'Gewicht (kg)', 'Nutzen']
 
@@ -103,7 +101,7 @@ def eingabemaske_gegenstände(pages):
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("Zurück"):
-                    navigate("Eingabemaske_Tasche")
+                    navigate("Eingabemaske_Tasche", pages)
             with col2:
                 if st.button("Weiter"):
                     if selected_items.empty:
@@ -115,7 +113,6 @@ def eingabemaske_gegenstände(pages):
                             st.write(f"Du willst also in deine {max_capacity} kg Tasche {current_capacity:.2f} kg packen?! 🤣🤣🤣")
                         st.dataframe(selected_df, hide_index=True, use_container_width=True)
                         if st.button("Bestätigen"):
-                            # Store selected items in session state
                             st.session_state["gegenstände_df"] = selected_df
                             navigate("Algorithmen-Auswahlmaske", pages)
                         if st.button("Abbrechen"):
