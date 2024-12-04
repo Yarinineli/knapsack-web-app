@@ -20,7 +20,6 @@ def dynamic_programming_knapsack(items_df, weight_limit):
     if items_df.empty:
         return pd.DataFrame(), 0, 0
 
-    # Rest of your existing dynamic programming implementation
     n = len(items_df)
     weights = items_df['Gewicht (kg)'].values
     values = items_df['Nutzen'].values
